@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barbershop/screen/servicespage.dart';
 import 'package:flutter_barbershop/screen/productpage.dart';
-
+import 'package:firebase_auth/firebase_auth.dart'; // Tambahkan ini
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser; // Ambil user yang sedang login
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -39,19 +42,21 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Welcome Back",
+                    const Text(
+                      "Welcome Back,",
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                     Text(
-                      "Guys!",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                      user?.displayName ?? "User",
+                      style: const TextStyle(
+                        fontSize: 20,fontWeight: FontWeight.bold,
+                        color: Colors.white,),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
                 const Spacer(),
                 ElevatedButton.icon(
                   onPressed: () {},

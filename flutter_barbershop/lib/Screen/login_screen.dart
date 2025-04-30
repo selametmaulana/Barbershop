@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barbershop/Screen/register_screen.dart';
 import 'package:flutter_barbershop/Screen/home_screen.dart';
+import 'package:flutter_barbershop/Screen/reset_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -15,9 +16,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     try {
+      final String email = _emailController.text.trim();
+      final String password = _passwordController.text.trim();
+
       await _auth.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
+        email: email,
+        password: password,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -28,9 +32,25 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = "Login Gagal";
+
+      if (e.code == 'user-not-found') {
+        errorMessage = 'Email tidak ditemukan.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Password salah.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Format email tidak valid.';
+      } else if (e.code == 'invalid-credential') {
+        errorMessage = 'Kredensial salah atau tidak valid.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login Gagal: $e"), backgroundColor: Colors.red),
+        SnackBar(content: Text("Terjadi kesalahan: ${e.toString()}"), backgroundColor: Colors.red),
       );
     }
   }
@@ -38,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Background hitam
+      backgroundColor: Colors.black,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -57,23 +77,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
             Align(
               alignment: Alignment.centerRight,
-              child: Text(
-                "Forgot Password?",
-                style: TextStyle(color: Colors.white70),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ResetPasswordScreen()),
+                  );
+                },
+                child: Text(
+                  "Forgot Password?",
+                  style: TextStyle(color: Colors.white70, decoration: TextDecoration.underline),
+                ),
               ),
             ),
             SizedBox(height: 20),
 
-            // Tombol Login
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black, // Tombol hitam
+                  backgroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
-                    side: BorderSide(color: Colors.white), // Border putih
+                    side: BorderSide(color: Colors.white),
                   ),
                 ),
                 onPressed: _login,
@@ -82,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 20),
 
-            // Sign Up Navigation
             GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -115,13 +141,13 @@ class _LoginScreenState extends State<LoginScreen> {
           obscureText: isPassword,
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.grey[300], // Background abu-abu muda seperti di register
+            fillColor: Colors.grey[300],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
             ),
           ),
-          style: TextStyle(color: Colors.black, fontSize: 16), // Teks hitam di dalam input
+          style: TextStyle(color: Colors.black, fontSize: 16),
         ),
       ],
     );
