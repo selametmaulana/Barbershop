@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_barbershop/profil_user.dart';
+import 'package:flutter_barbershop/profil_karyawan.dart';
 
 void main() {
   runApp(BarberShopApp());

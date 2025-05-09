@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/date_symbol_data_local.dart'; // <-- Tambahkan ini
-import 'welcome.dart';
+import 'package:intl/date_symbol_data_local.dart'; 
+import 'firebase_options.dart'; 
+import 'package:flutter_barbershop/screen/welcome.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  // Inisialisasi Firebase dengan menggunakan firebase_options.dart yang dihasilkan
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform, // Inisialisasi Firebase Web
+  );
 
   // Inisialisasi locale Indonesia untuk format tanggal
   await initializeDateFormatting('id_ID', null);
@@ -35,6 +40,7 @@ class MyApp extends StatelessWidget {
         Locale('id', 'ID'),
       ],
 
+      // Pastikan WelcomeScreen ada
       home: WelcomeScreen(),
     );
   }

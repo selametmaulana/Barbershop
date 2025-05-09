@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../Screen/login_screen.dart';
-import '../Screen/register_screen.dart';
+import 'package:flutter_barbershop/screen/login_screen.dart';
+import 'package:flutter_barbershop/screen/register_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override
@@ -19,7 +19,7 @@ class WelcomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Welcome to",
+              "Welcome to Barbershop",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

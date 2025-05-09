@@ -6,14 +6,14 @@ import 'package:flutter_barbershop/screen/Qris.dart'; // QRIS screen
 class ProductPage extends StatelessWidget {
   const ProductPage({super.key});
 
-  // Fungsi untuk menyimpan pesanan ke Firestore beserta email user
+  // Simpan pesanan ke Firestore
   Future<void> _saveOrderToFirestore(String title, String price, String image) async {
     final user = FirebaseAuth.instance.currentUser;
     final ordersCollection = FirebaseFirestore.instance.collection('orders');
 
     String userEmail = user?.email ?? 'tidak diketahui';
 
-    final docRef = ordersCollection.doc(); // generate ID otomatis
+    final docRef = ordersCollection.doc();
 
     await docRef.set({
       'id_pesanan': docRef.id,
@@ -27,7 +27,7 @@ class ProductPage extends StatelessWidget {
     });
   }
 
-  // Navigasi ke halaman QRIS setelah menyimpan pesanan
+  // Navigasi ke halaman pembayaran QRIS
   void _navigateToQRPayment(BuildContext context, String title, String price, String image) async {
     await _saveOrderToFirestore(title, price, image);
 
@@ -39,7 +39,7 @@ class ProductPage extends StatelessWidget {
     );
   }
 
-  // Kartu produk
+  // Kartu produk dengan gambar dan info di dalamnya
   Widget _buildProductCard(String title, String price, String imagePath, BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -47,43 +47,87 @@ class ProductPage extends StatelessWidget {
       ),
       elevation: 4,
       color: Colors.grey[900],
-      child: Column(
-        children: [
-          Expanded(
-            child: imagePath.startsWith("http")
-                ? Image.network(imagePath, fit: BoxFit.cover)
-                : Image.asset(imagePath, fit: BoxFit.cover),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  "Rp $price",
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () => _navigateToQRPayment(context, title, price, imagePath),
-                  child: const Text("Beli"),
-                ),
-              ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Stack(
+          children: [
+            // Gambar sebagai background
+            Positioned.fill(
+              child: imagePath.startsWith("http")
+                  ? Image.network(
+                      imagePath,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Icon(Icons.broken_image, color: Colors.grey, size: 50),
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      imagePath,
+                      fit: BoxFit.cover,
+                    ),
             ),
-          ),
-        ],
+
+            // Gradient overlay agar teks terbaca
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.transparent, Colors.black.withOpacity(0.8)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+
+            // Informasi produk dan tombol
+            Positioned(
+              bottom: 10,
+              left: 10,
+              right: 10,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Rp $price",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => _navigateToQRPayment(context, title, price, imagePath),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[800],
+                      ),
+                      child: const Text("Beli"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
